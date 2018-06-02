@@ -1,4 +1,8 @@
+import 'dart:async';
+import 'dart:convert' as JSON;
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:recruitx/interview.dart';
 
 class InterviewsTab extends StatefulWidget {
@@ -13,15 +17,13 @@ class InterviewsTab extends StatefulWidget {
 }
 
 class _InterviewTab extends State<InterviewsTab> {
-  final bool isMyInterview;
-  final interviews = <Interview>[
-    new Interview("Dinesh", "Dev", 3),
-    new Interview("Ramesh", "Dev", 3),
-    new Interview("Rajesh", "QA", 8),
-    new Interview("Suresh", "BA", 5),
-  ];
+  bool isMyInterview;
+  var interviews = <Interview>[];
 
-  _InterviewTab(this.isMyInterview);
+  _InterviewTab(bool isMyInterview) {
+    this.isMyInterview = isMyInterview;
+    _setInterviews();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +41,24 @@ class _InterviewTab extends State<InterviewsTab> {
         }
       },
     );
+  }
+
+  void _setInterviews() {
+    _fetchPost().then((interviews) {
+      setState(() {
+        this.interviews = interviews;
+      });
+    });
+  }
+
+  Future<List<Interview>> _fetchPost() async {
+    final response = await http.get('http://127.0.0.1:4000/' +
+        'interviews?panelist_login_name=dineshb&panelist_experience=10&panelist_role=ops');
+    final List<dynamic> jsonDecode = JSON.jsonDecode(response.body);
+    List<Interview> interviews = jsonDecode.map((interview) {
+      return Interview.fromJson(interview);
+    }).toList();
+    return interviews;
   }
 }
 
