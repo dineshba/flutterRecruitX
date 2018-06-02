@@ -1,22 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:recruitx/Interview.dart';
 
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
       title: 'RecruitX',
       theme: new ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or press Run > Flutter Hot Reload in IntelliJ). Notice that the
-        // counter didn't reset back to zero; the application is not restarted.
         primarySwatch: Colors.blue,
       ),
       home: new DefaultTabController(
@@ -57,11 +49,61 @@ class InterviewsTab extends StatefulWidget {
 
 class _InterviewTab extends State<InterviewsTab> {
   final bool isMyInterview;
+  final interviews = <Interview>[
+    new Interview("Dinesh", "Dev", 3),
+    new Interview("Ramesh", "Dev", 3),
+    new Interview("Rajesh", "QA", 8),
+    new Interview("Suresh", "BA", 5),
+  ];
 
   _InterviewTab(this.isMyInterview);
 
   @override
   Widget build(BuildContext context) {
-    return isMyInterview ? new Text("My Interviews"): new Text("all Interviews");
+    return new ListView.builder(
+      itemBuilder: (context, index) {
+        if (index.isOdd) {
+          return new Divider();
+        }
+        var i = index ~/ 2;
+        if (i < interviews.length) {
+          var interview = interviews[i];
+          return new ListTile(
+            title: new InterviewCard(interview),
+          );
+        }
+      },
+    );
+  }
+}
+
+class InterviewCard extends StatelessWidget {
+  final Interview interview;
+
+  InterviewCard(this.interview);
+
+  @override
+  Widget build(BuildContext context) {
+    return new Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        new Row(
+          children: [
+            new Text(interview.candidateName),
+            new Expanded(
+              child: new Text(
+                interview.role,
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ],
+        ),
+        new Row(children: [
+          new Text(
+            interview.experience.toString() + " Yrs",
+          ),
+        ])
+      ],
+    );
   }
 }
