@@ -4,6 +4,7 @@ import 'dart:convert' as JSON;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:recruitx/interview.dart';
+import 'package:recruitx/interview_card.dart';
 
 class InterviewsTab extends StatefulWidget {
   InterviewsTab({Key key, this.isMyInterview}) : super(key: key);
@@ -27,19 +28,27 @@ class _InterviewTab extends State<InterviewsTab> {
 
   @override
   Widget build(BuildContext context) {
-    return new ListView.builder(
+    var listView = new ListView.builder(
       itemBuilder: (context, index) {
-        if (index.isOdd) {
-          return new Divider();
-        }
-        var i = index ~/ 2;
-        if (i < interviews.length) {
-          var interview = interviews[i];
-          return new ListTile(
+        if (index < interviews.length) {
+          var interview = interviews[index];
+          var listTile = new ListTile(
             title: new InterviewCard(interview),
           );
+          var container = new Container(
+            padding: new EdgeInsets.only(top: 5.0, bottom: 5.0),
+            child: listTile,
+          );
+          var a = new Card(
+            child: container,
+          );
+          return a;
         }
       },
+    );
+    return new Padding(
+      padding: new EdgeInsets.only(top: 10.0),
+      child: listView,
     );
   }
 
@@ -53,42 +62,11 @@ class _InterviewTab extends State<InterviewsTab> {
 
   Future<List<Interview>> _fetchPost() async {
     final response = await http.get('http://127.0.0.1:4000/' +
-        'interviews?panelist_login_name=dineshb&panelist_experience=10&panelist_role=ops');
+        'interviews?panelist_login_name=dineshb&panelist_experience=10&panelist_role=ops&preload');
     final List<dynamic> jsonDecode = JSON.jsonDecode(response.body);
     List<Interview> interviews = jsonDecode.map((interview) {
       return Interview.fromJson(interview);
     }).toList();
     return interviews;
-  }
-}
-
-class InterviewCard extends StatelessWidget {
-  final Interview interview;
-
-  InterviewCard(this.interview);
-
-  @override
-  Widget build(BuildContext context) {
-    return new Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        new Row(
-          children: [
-            new Text(interview.candidateName),
-            new Expanded(
-              child: new Text(
-                interview.role,
-                textAlign: TextAlign.end,
-              ),
-            ),
-          ],
-        ),
-        new Row(children: [
-          new Text(
-            interview.experience.toString() + " Yrs",
-          ),
-        ])
-      ],
-    );
   }
 }
